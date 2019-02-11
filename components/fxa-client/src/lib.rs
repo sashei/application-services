@@ -8,11 +8,14 @@
 pub use crate::browser_id::{SyncKeys, WebChannelResponse};
 #[cfg(feature = "browserid")]
 use crate::login_sm::LoginState;
-pub use crate::{config::Config, oauth::AccessTokenInfo, profile::Profile};
 use crate::{
+    commands::send_tab::SendTabPayload,
+    device::Device,
     errors::*,
-    oauth::{OAuthFlow, RefreshToken, ScopedKey},
+    oauth::{OAuthFlow, RefreshToken},
+    scoped_keys::ScopedKey,
 };
+pub use crate::{config::Config, oauth::AccessTokenInfo, profile::Profile};
 use lazy_static::lazy_static;
 use ring::rand::SystemRandom;
 use serde_derive::*;
@@ -21,12 +24,13 @@ use url::Url;
 
 #[cfg(feature = "browserid")]
 mod browser_id;
+mod commands;
 mod config;
+pub mod device;
 pub mod errors;
 pub mod ffi;
 // Include the `msg_types` module, which is generated from msg_types.proto.
 pub mod msg_types {
-    use prost_derive::Message; // https://github.com/danburkert/prost/issues/140
     include!(concat!(env!("OUT_DIR"), "/msg_types.rs"));
 }
 mod http_client;
@@ -36,11 +40,12 @@ mod oauth;
 mod profile;
 mod scoped_keys;
 pub mod scopes;
+pub mod send_tab;
 mod state_persistence;
 mod util;
 
 lazy_static! {
-    static ref RNG: SystemRandom = SystemRandom::new();
+    pub static ref RNG: SystemRandom = SystemRandom::new();
 }
 
 #[cfg(feature = "browserid")]
@@ -67,6 +72,10 @@ pub(crate) struct StateV2 {
     login_state: LoginState,
     refresh_token: Option<RefreshToken>,
     scoped_keys: HashMap<String, ScopedKey>,
+    last_handled_command: Option<u64>,
+    // Remove serde(default) once we are V3.
+    #[serde(default)]
+    commands_data: HashMap<String, String>,
 }
 
 impl FirefoxAccount {
@@ -90,6 +99,8 @@ impl FirefoxAccount {
             login_state: LoginState::Unknown,
             refresh_token: None,
             scoped_keys: HashMap::new(),
+            last_handled_command: None,
+            commands_data: HashMap::new(),
         })
     }
 
@@ -111,7 +122,7 @@ impl FirefoxAccount {
         self.client = client;
     }
 
-    /// Restore a `FirefoxAccount` instance from an serialized state
+    /// Restore a `FirefoxAccount` instance from a serialized state
     /// created using `to_json`.
     pub fn from_json(data: &str) -> Result<Self> {
         let state = state_persistence::state_from_json(data)?;
@@ -142,12 +153,59 @@ impl FirefoxAccount {
             .append_pair("showSuccessMessage", "true");
         Ok(url)
     }
+
+    /// Handle any incoming push message payload coming from the Firefox Accounts
+    /// servers that has been decrypted and authenticated by the Push crate.
+    ///
+    /// Due to iOS platform restrictions, a push notification must always show UI,
+    /// and therefore we only retrieve 1 command per message.
+    ///
+    /// **💾 This method alters the persisted account state.**
+    pub fn handle_push_message(&mut self, payload: &str) -> Result<Vec<AccountEvent>> {
+        let payload = serde_json::from_str(payload)?;
+        match payload {
+            PushPayload::CommandReceived(CommandReceivedPushPayload { index, .. }) => {
+                if cfg!(target_os = "ios") {
+                    self.fetch_device_command(index).map(|cmd| vec![cmd])
+                } else {
+                    self.poll_device_commands()
+                }
+            }
+        }
+    }
+
+    fn get_refresh_token(&self) -> Result<&str> {
+        match self.state.refresh_token {
+            Some(ref token_info) => Ok(&token_info.token),
+            None => Err(ErrorKind::NoRefreshToken.into()),
+        }
+    }
+}
+
+pub enum AccountEvent {
+    // In the future: ProfileUpdated etc.
+    TabReceived((Option<Device>, SendTabPayload)),
 }
 
 pub(crate) struct CachedResponse<T> {
     response: T,
     cached_at: u64,
     etag: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(tag = "command", content = "data")]
+pub enum PushPayload {
+    #[serde(rename = "fxaccounts:command_received")]
+    CommandReceived(CommandReceivedPushPayload),
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CommandReceivedPushPayload {
+    command: String,
+    index: u64,
+    sender: String,
+    url: String,
 }
 
 #[cfg(test)]
@@ -180,5 +238,11 @@ mod tests {
             "https://stable.dev.lcip.org/connect_another_device?showSuccessMessage=true"
                 .to_string()
         );
+    }
+
+    #[test]
+    fn test_deserialize_push_message() {
+        let json = "{\"version\":1,\"command\":\"fxaccounts:command_received\",\"data\":{\"command\":\"send-tab-recv\",\"index\":1,\"sender\":\"bobo\",\"url\":\"https://mozilla.org\"}}";
+        let _: PushPayload = serde_json::from_str(&json).unwrap();
     }
 }

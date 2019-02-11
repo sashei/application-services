@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-use crate::errors::*;
+use crate::{errors::*, RNG};
 use ring::rand::SecureRandom;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -21,9 +21,9 @@ pub fn now_secs() -> u64 {
     since_epoch.as_secs()
 }
 
-pub fn random_base64_url_string(rng: &SecureRandom, len: usize) -> Result<String> {
+pub fn random_base64_url_string(len: usize) -> Result<String> {
     let mut out = vec![0u8; len];
-    rng.fill(&mut out).map_err(|_| ErrorKind::RngFailure)?;
+    RNG.fill(&mut out).map_err(|_| ErrorKind::RngFailure)?;
     Ok(base64::encode_config(&out, base64::URL_SAFE_NO_PAD))
 }
 

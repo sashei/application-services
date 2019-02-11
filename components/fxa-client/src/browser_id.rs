@@ -42,6 +42,8 @@ impl FirefoxAccount {
             login_state,
             refresh_token: None,
             scoped_keys: HashMap::new(),
+            last_handled_command: None,
+            commands_data: HashMap::new(),
         }))
     }
 
