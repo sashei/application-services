@@ -74,6 +74,21 @@ internal interface LibFxAFFI : Library {
     fun fxa_complete_oauth_flow(fxa: FxaHandle, code: String, state: String, e: RustError.ByReference)
     fun fxa_get_access_token(fxa: FxaHandle, scope: String, e: RustError.ByReference): RustBuffer.ByValue
 
+    fun fxa_set_push_subscription(
+        fxa: FxaHandle,
+        endpoint: String,
+        publicKey: String,
+        authKey: String,
+        e: RustError.ByReference
+    )
+    fun fxa_set_device_name(fxa: FxaHandle, displayName: String, e: RustError.ByReference)
+    fun fxa_get_devices(fxa: FxaHandle, e: RustError.ByReference): RustBuffer.ByValue
+    fun fxa_poll_device_commands(fxa: FxaHandle, e: RustError.ByReference): RustBuffer.ByValue
+    fun fxa_handle_push_message(fxa: FxaHandle, jsonPayload: String, e: RustError.ByReference): RustBuffer.ByValue
+
+    fun fxa_ensure_send_tab_registered(fxa: FxaHandle, e: RustError.ByReference)
+    fun fxa_send_tab(fxa: FxaHandle, targetDeviceId: String, title: String, url: String, e: RustError.ByReference)
+
     fun fxa_str_free(string: Pointer)
     fun fxa_bytebuffer_free(buffer: RustBuffer.ByValue)
     fun fxa_free(fxa: FxaHandle, err: RustError.ByReference)
