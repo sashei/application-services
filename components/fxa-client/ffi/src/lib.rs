@@ -300,6 +300,19 @@ pub unsafe extern "C" fn fxa_poll_device_commands(
     })
 }
 
+/// Destroy the device given a device_id.
+#[no_mangle]
+pub unsafe extern "C" fn fxa_destroy_device(
+    handle: u64,
+    device_id: FfiStr<'_>,
+    error: &mut ExternError,
+) {
+    log::debug!("fxa_destroy_device");
+    ACCOUNTS.call_with_result_mut(error, handle, |fxa| {
+        fxa.destroy_device(device_id.as_str()).map(|_| ())
+    })
+}
+
 /// Handle a push payload coming from the Firefox Account servers.
 ///
 /// # Safety

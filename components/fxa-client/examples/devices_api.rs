@@ -15,10 +15,10 @@ use std::{
 use url::Url;
 
 static CREDENTIALS_PATH: &'static str = "credentials.json";
-static CONTENT_SERVER: &'static str = "https://devicesrefresh.dev.lcip.org";
+static CONTENT_SERVER: &'static str = "https://devices2.dev.lcip.org";
 static CLIENT_ID: &'static str = "3c49430b43dfba77";
 static REDIRECT_URI: &'static str =
-    "https://devicesrefresh.dev.lcip.org/oauth/success/3c49430b43dfba77";
+    "https://devices2.dev.lcip.org/oauth/success/3c49430b43dfba77";
 static SCOPES: &'static [&'static str] = &["profile", "https://identity.mozilla.com/apps/oldsync"];
 static DEFAULT_DEVICE_NAME: &'static str = "Bobo device";
 
@@ -115,7 +115,7 @@ fn main() -> Result<(), failure::Error> {
     loop {
         println!("Main menu:");
         let mut main_menu = Select::new();
-        main_menu.items(&["Set Display Name", "Send a Tab", "Quit"]);
+        main_menu.items(&["Set Display Name", "Send a Tab", "Destroy Device", "Quit"]);
         main_menu.default(0);
         let main_menu_selection = main_menu.interact().unwrap();
 
@@ -148,7 +148,23 @@ fn main() -> Result<(), failure::Error> {
                     .unwrap();
                 println!("Tab sent!");
             }
-            2 => ::std::process::exit(0),
+            2 => {
+                let devices = acct.lock().unwrap().get_devices().unwrap();
+                let devices_names: Vec<String> =
+                    devices.iter().map(|i| i.display_name.clone()).collect();
+                let mut targets_menu = Select::new();
+                targets_menu.default(0);
+                let devices_names_refs: Vec<&str> =
+                    devices_names.iter().map(|s| s.as_ref()).collect();
+                targets_menu.items(&devices_names_refs);
+                println!("Choose the device to destroy:");
+                let selection = targets_menu.interact().unwrap();
+                let target = &devices[selection];
+
+                acct.lock().unwrap().destroy_device(&target.id).unwrap();
+                println!("Should be gone!");
+            },
+            3 => ::std::process::exit(0),
             _ => panic!("Invalid choice!"),
         }
     }
