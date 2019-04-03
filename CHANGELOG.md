@@ -10,11 +10,17 @@
 
 - PushAPI now defines a number of default parameters for functions ([#868](https://github.com/mozilla/application-services/issues/868))
 
+### What's fixed
+
+- PushAPI now stores some metadata information across restarts ([#905](https://github.com/mozilla/application-services/issues/905))
+
 ### Breaking changes
 
 - `mozilla.appservices.push.BridgeTypes` is now
   `mozilla.appservices.push.BridgeType`
 ([#885](https://github.com/mozilla/application-services/issues/885))
+- push.sqlite database has changed. Prior versions should be deleted.
+  Database updates are not yet available.
 
 # v0.23.0 (_2018-03-29_)
 

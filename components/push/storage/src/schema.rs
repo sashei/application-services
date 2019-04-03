@@ -46,11 +46,12 @@ fn upgrade(_db: &Connection, from: i64) -> Result<()> {
 }
 
 pub fn create(db: &Connection) -> Result<()> {
-    log::debug!("Creating schema");
-    db.execute_all(&[
-        CREATE_TABLE_PUSH_SQL,
-        &format!("PRAGMA user_version = {version}", version = VERSION),
-    ])?;
+    let statements = format!(
+        "{create}\n\nPRAGMA user_version = {version}",
+        create = CREATE_TABLE_PUSH_SQL,
+        version = VERSION
+    );
+    db.execute_batch(&statements)?;
 
     Ok(())
 }
