@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+use crate::bookmark_sync::store::BookmarksStore;
 use crate::db::db::PlacesDb;
 use crate::error::*;
 use crate::history_sync::store::HistoryStore;
@@ -159,7 +160,7 @@ impl PlacesApi {
     // TODO: We need a better result here so we can return telemetry.
     // We possibly want more than just a `SyncTelemetryPing` so we can
     // return additional "custom" telemetry if the app wants it.
-    pub fn sync(
+    pub fn sync_history(
         &self,
         client_init: &sync15::Sync15StorageClientInit,
         key_bundle: &sync15::KeyBundle,
@@ -174,6 +175,26 @@ impl PlacesApi {
         }
         let sync_state = guard.as_ref().unwrap();
         let store = HistoryStore::new(&sync_state.conn, &sync_state.client_info);
+        let mut sync_ping = telemetry::SyncTelemetryPing::new();
+        store.sync(&client_init, &key_bundle, &mut sync_ping)?;
+        Ok(sync_ping)
+    }
+
+    pub fn sync_bookmarks(
+        &self,
+        client_init: &sync15::Sync15StorageClientInit,
+        key_bundle: &sync15::KeyBundle,
+    ) -> Result<telemetry::SyncTelemetryPing> {
+        let mut guard = self.sync_state.lock().unwrap();
+        if guard.is_none() {
+            let conn = self.open_connection(ConnectionType::Sync)?;
+            *guard = Some(SyncState {
+                conn,
+                client_info: Cell::new(None),
+            });
+        }
+        let sync_state = guard.as_ref().unwrap();
+        let store = BookmarksStore::new(&sync_state.conn, &sync_state.client_info);
         let mut sync_ping = telemetry::SyncTelemetryPing::new();
         store.sync(&client_init, &key_bundle, &mut sync_ping)?;
         Ok(sync_ping)

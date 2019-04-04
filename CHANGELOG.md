@@ -11,6 +11,22 @@
     - This is done rather than relying on consumers to strip them, which proved
       more difficult than anticipated.
 
+## Places
+
+### What's new
+
+- Bookmarks may now be synced using the `syncBookmarks` method on `PlacesApi`
+  (and on Android, the interface it implements, `SyncManager`).
+  ([#850](https://github.com/mozilla/application-services/issues/850))
+
+### Breaking Changes
+
+- Android only: The addition of `syncBookmarks` on the `PlacesManager` interface
+  is a breaking change. ([#850](https://github.com/mozilla/application-services/issues/850))
+- Android only: `sync` has been renamed to `syncHistory` for clarity given the
+  existence of `syncBookmarks`.
+  ([#850](https://github.com/mozilla/application-services/issues/850))
+
 ## Push
 
 ### What's new

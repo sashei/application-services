@@ -28,7 +28,8 @@ use sync15::{
     telemetry, ClientInfo, CollectionRequest, IncomingChangeset, OutgoingChangeset, Payload,
     ServerTimestamp, Store,
 };
-static LAST_SYNC_META_KEY: &'static str = "bookmarks_last_sync_time";
+const LAST_SYNC_META_KEY: &str = "bookmarks_last_sync_time";
+const GLOBAL_STATE_META_KEY: &str = "bookmarks_global_state";
 
 pub struct BookmarksStore<'a> {
     pub db: &'a PlacesDb,
@@ -415,6 +416,45 @@ impl<'a> BookmarksStore<'a> {
         self.db.execute_batch("DELETE FROM itemsToUpload")?;
 
         Ok(())
+    }
+
+    fn set_global_state(&self, global_state: Option<String>) -> Result<()> {
+        let to_write = match global_state {
+            Some(ref s) => s,
+            None => "",
+        };
+        put_meta(&self.db, GLOBAL_STATE_META_KEY, &to_write)
+    }
+
+    fn get_global_state(&self) -> Result<Option<String>> {
+        get_meta(&self.db, GLOBAL_STATE_META_KEY)
+    }
+
+    pub fn sync(
+        &self,
+        storage_init: &sync15::Sync15StorageClientInit,
+        root_sync_key: &sync15::KeyBundle,
+        sync_ping: &mut telemetry::SyncTelemetryPing,
+    ) -> Result<()> {
+        let global_state: Cell<Option<String>> = Cell::new(self.get_global_state()?);
+        let result = sync15::sync_multiple(
+            &[self],
+            &global_state,
+            &self.client_info,
+            storage_init,
+            root_sync_key,
+            sync_ping,
+        );
+        self.set_global_state(global_state.replace(None))?;
+        let failures = result?;
+        if failures.is_empty() {
+            Ok(())
+        } else {
+            assert_eq!(failures.len(), 1);
+            let (name, err) = failures.into_iter().next().unwrap();
+            assert_eq!(name, "history");
+            Err(err.into())
+        }
     }
 }
 

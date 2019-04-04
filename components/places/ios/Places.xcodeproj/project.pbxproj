@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD02CF3722568BB700124DA2 /* SyncUnlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD02CF3622568BB700124DA2 /* SyncUnlockInfo.swift */; };
 		CD07594C2235A20E0018A071 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD07594B2235A20E0018A071 /* SwiftProtobuf.framework */; };
 		CD440A3D22387FE0003F004B /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD07594B2235A20E0018A071 /* SwiftProtobuf.framework */; };
 		CD440A412238833A003F004B /* SwiftProtobuf.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CD07594B2235A20E0018A071 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -61,6 +62,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CD02CF3622568BB700124DA2 /* SyncUnlockInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SyncUnlockInfo.swift; path = ../../../support/ios/SyncUnlockInfo.swift; sourceTree = "<group>"; };
 		CD07594B2235A20E0018A071 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = ../../../Carthage/Build/iOS/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		CDADF0152235CFF700AA3E5C /* String+Free_Places.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Free_Places.swift"; sourceTree = "<group>"; };
 		CDADF0172235D33900AA3E5C /* Places.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Places.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 		CE9D202220914D0D00F1C8FA /* Places */ = {
 			isa = PBXGroup;
 			children = (
+				CD02CF3622568BB700124DA2 /* SyncUnlockInfo.swift */,
 				CECB395120B5B77E00DB3ED4 /* Errors */,
 				CECB394F20B5B77E00DB3ED4 /* Extensions */,
 				CE9D202320914D0D00F1C8FA /* Places.h */,
@@ -311,6 +314,7 @@
 				EBE26B47220B4CE400D1D99A /* CommonErrors.swift in Sources */,
 				CDADF0162235CFF700AA3E5C /* String+Free_Places.swift in Sources */,
 				CDADF0182235D33900AA3E5C /* Places.swift in Sources */,
+				CD02CF3722568BB700124DA2 /* SyncUnlockInfo.swift in Sources */,
 				CEE1087620C5ADF9007048AC /* PlacesError.swift in Sources */,
 				CDADF01C2235E4FE00AA3E5C /* Bookmark.swift in Sources */,
 				CDADF01A2235D35B00AA3E5C /* Data+PlacesRustBuffer.swift in Sources */,

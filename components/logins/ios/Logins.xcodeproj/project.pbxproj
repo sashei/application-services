@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CD02CF3522568A7B00124DA2 /* SyncUnlockInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD02CF3422568A7B00124DA2 /* SyncUnlockInfo.swift */; };
 		CDB5AAED21535E7F00B66D7E /* LoginRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB5AAEC21535E7F00B66D7E /* LoginRecord.swift */; };
 		CE9D203120914D2600F1C8FA /* LoginsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9D202B20914D2600F1C8FA /* LoginsStorage.swift */; };
 		CECB395420B5B92500DB3ED4 /* LockError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CECB395220B5B77E00DB3ED4 /* LockError.swift */; };
@@ -30,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CD02CF3422568A7B00124DA2 /* SyncUnlockInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SyncUnlockInfo.swift; path = ../../../support/ios/SyncUnlockInfo.swift; sourceTree = "<group>"; };
 		CDB5AAEC21535E7F00B66D7E /* LoginRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginRecord.swift; sourceTree = "<group>"; };
 		CDFA91ED2153568E0074CABF /* RustPasswordAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RustPasswordAPI.h; sourceTree = "<group>"; };
 		CE9D202020914D0D00F1C8FA /* Logins.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Logins.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -96,6 +98,7 @@
 		CE9D202220914D0D00F1C8FA /* Logins */ = {
 			isa = PBXGroup;
 			children = (
+				CD02CF3422568A7B00124DA2 /* SyncUnlockInfo.swift */,
 				CECB395120B5B77E00DB3ED4 /* Errors */,
 				CECB394F20B5B77E00DB3ED4 /* Extensions */,
 				CE9D202320914D0D00F1C8FA /* Logins.h */,
@@ -273,6 +276,7 @@
 				CE9D203120914D2600F1C8FA /* LoginsStorage.swift in Sources */,
 				EBE26B47220B4CE400D1D99A /* CommonErrors.swift in Sources */,
 				CDB5AAED21535E7F00B66D7E /* LoginRecord.swift in Sources */,
+				CD02CF3522568A7B00124DA2 /* SyncUnlockInfo.swift in Sources */,
 				CEE1087620C5ADF9007048AC /* LoginStoreError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
