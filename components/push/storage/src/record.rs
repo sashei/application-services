@@ -18,6 +18,59 @@ pub struct MetaRecord {
     pub val: String,
 }
 
+#[derive(Debug)]
+pub struct DeliveryRecord {
+    // ChannelID / Key
+    pub channel_id: ChannelID,
+
+    // Name of the service associated with this channelID,
+    pub service_name: String,
+
+    // Is this a User Agent System function, and immune from quota checks?
+    pub is_system: bool,
+
+    // Max Quota of notifications before being cut off
+    pub quota: Option<u32>,
+
+    // UTC for last message receipt
+    pub last_recvd: Option<Timestamp>,
+
+    // Number of notifications received since last reset
+    pub recv_count: Option<u32>,
+
+    // UA provided recipient information
+    pub recipient_info: Option<String>,
+}
+
+impl DeliveryRecord {
+    // can't use `impl From` because of tries
+    pub fn from_row(row: Row) -> Result<Self> {
+        Ok(Self {
+            channel_id: row.get_checked("channel_id")?,
+            service_name: row.get_checked("svc_name")?,
+            is_system: row.get_checked("is_system")?,
+            quota: row.get_checked("quota")?,
+            last_recvd: row.get_checked("last_recvd")?,
+            recv_count: row.get_checked("recv_count")?,
+            recipient_info: row.get_checked("recipient_info")?,
+        })
+    }
+}
+
+impl Default for DeliveryRecord {
+    fn default() -> Self {
+        Self {
+            channel_id: "".to_owned(),
+            service_name: "".to_owned(),
+            is_system: false,
+            quota: None,
+            last_recvd: None,
+            recv_count: None,
+            recipient_info: None,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct PushRecord {
     // User Agent's unique identifier
@@ -29,7 +82,7 @@ pub struct PushRecord {
     // Endpoint provided from the push server
     pub endpoint: String,
 
-    // The receipient (service worker)'s scope
+    // The recipient (service worker)'s scope
     pub scope: String,
 
     // Private EC Prime256v1 key info. (Public key can be derived from this)

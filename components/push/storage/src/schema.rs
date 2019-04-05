@@ -18,6 +18,16 @@ pub const COMMON_COLS: &str = "
     native_id
 ";
 
+pub const DM_COLS: &str = "
+    channel_id,
+    svc_name,
+    is_system,
+    quota,
+    last_recvd,
+    recv_count,
+    recipient_info
+";
+
 pub fn init(db: &Connection) -> Result<()> {
     let user_version = db.query_one::<i64>("PRAGMA user_version")?;
     if user_version == 0 {
@@ -47,7 +57,7 @@ fn upgrade(_db: &Connection, from: i64) -> Result<()> {
 
 pub fn create(db: &Connection) -> Result<()> {
     let statements = format!(
-        "{create}\n\nPRAGMA user_version = {version}",
+        "{create};PRAGMA user_version = {version}",
         create = CREATE_TABLE_PUSH_SQL,
         version = VERSION
     );

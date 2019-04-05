@@ -5,7 +5,7 @@ use sql_support::ConnExt;
 
 use push_errors::{ErrorKind, Result};
 
-use crate::{record::PushRecord, schema};
+use crate::{record::DeliveryRecord, record::PushRecord, schema, types::Timestamp};
 
 // TODO: Add broadcasts storage
 
@@ -29,6 +29,12 @@ pub trait Storage {
     fn get_meta(&self, key: &str) -> Result<Option<String>>;
 
     fn set_meta(&self, key: &str, value: &str) -> Result<()>;
+
+    fn get_delivery_record_by_chid(&self, channel_id: &str) -> Result<DeliveryRecord>;
+
+    fn get_delivery_record_by_service_name(&self, service_name: &str) -> Result<DeliveryRecord>;
+
+    fn update_delivery_record(&self, delivery_record: &DeliveryRecord) -> Result<()>;
 }
 
 pub struct PushDb {
@@ -131,12 +137,16 @@ impl Storage for PushDb {
     }
 
     fn delete_record(&self, uaid: &str, chid: &str) -> Result<bool> {
-        let affected_rows = self.execute_named(
+        self.execute_named(
             "DELETE FROM push_record
              WHERE uaid = :uaid AND channel_id = :chid",
             &[(":uaid", &uaid), (":chid", &chid)],
         )?;
-        Ok(affected_rows == 1)
+        self.execute_named(
+            "DELETE FROM delivery_data where channel_id = :chid",
+            &[(":chid", &chid)],
+        )?;
+        Ok(true)
     }
 
     fn delete_all_records(&self, uaid: &str) -> Result<()> {
@@ -144,6 +154,8 @@ impl Storage for PushDb {
             "DELETE FROM push_record WHERE uaid = :uaid",
             &[(":uaid", &uaid)],
         )?;
+        self.execute_named("DELETE FROM delivery_data", &[])?;
+        self.execute_named("DELETE from meta_data", &[])?;
         Ok(())
     }
 
@@ -193,6 +205,87 @@ impl Storage for PushDb {
         self.execute_named(query, &[(":k", &key), (":v", &value)])?;
         Ok(())
     }
+
+    fn get_delivery_record_by_chid(&self, channel_id: &str) -> Result<DeliveryRecord> {
+        let query = format!(
+            "SELECT {dm_cols} from delivery_data where channel_id=:channel_id",
+            dm_cols = schema::DM_COLS
+        );
+        let mut statement = match self.prepare(&query) {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Error: {:?}", e);
+                return Err(e.into());
+            }
+        };
+        let mut rows = statement.query_named(&[(":channel_id", &channel_id)])?;
+        if let Some(row) = rows.next() {
+            return Ok(DeliveryRecord::from_row(row?)?);
+        }
+        Err(
+            ErrorKind::StorageError(format!("No delivery record for channel_id: {}", channel_id))
+                .into(),
+        )
+    }
+
+    fn get_delivery_record_by_service_name(&self, service_name: &str) -> Result<DeliveryRecord> {
+        let query = format!(
+            "SELECT {dm_cols} from delivery_data where svc_name=:service_name",
+            dm_cols = schema::DM_COLS
+        );
+        let mut statement = match self.prepare(&query) {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Error: {:?}", e);
+                return Err(e.into());
+            }
+        };
+        let mut rows = statement.query_named(&[(":service_name", &service_name)])?;
+        if let Some(row) = rows.next() {
+            return Ok(DeliveryRecord::from_row(row?)?);
+        }
+        Err(ErrorKind::StorageError(format!(
+            "No delivery record for service_name: {}",
+            service_name
+        ))
+        .into())
+    }
+
+    fn update_delivery_record(&self, delivery_record: &DeliveryRecord) -> Result<()> {
+        let query = format!(
+            "INSERT INTO delivery_data
+                ({dm_cols})
+            VALUES
+                (:channel_id, :service_name, :is_system, :quota, :last_recvd, :recv_count, :recipient_info)
+            ON CONFLICT(channel_id) DO UPDATE SET
+                last_recvd = :last_recvd,
+                recv_count = :recv_count,
+                recipient_info = :recipient_info",
+            dm_cols = schema::DM_COLS
+        );
+        self.execute_named(
+            &query,
+            &[
+                (":channel_id", &delivery_record.channel_id),
+                (":service_name", &delivery_record.service_name),
+                (":is_system", &delivery_record.is_system),
+                (":quota", &delivery_record.quota.unwrap_or(0)),
+                (
+                    ":last_recvd",
+                    &delivery_record.last_recvd.unwrap_or(Timestamp::now()),
+                ),
+                (":recv_count", &delivery_record.recv_count.unwrap_or(0)),
+                (
+                    ":recipient_info",
+                    &delivery_record
+                        .recipient_info
+                        .clone()
+                        .unwrap_or("".to_owned()),
+                ),
+            ],
+        )?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -201,14 +294,15 @@ mod test {
     use push_errors::Result;
 
     use super::PushDb;
-    use crate::{db::Storage, record::PushRecord};
+    use crate::{db::Storage, record::DeliveryRecord, record::PushRecord};
 
     const DUMMY_UAID: &str = "abad1dea00000000aabbccdd00000000";
+    const DUMMY_CHID: &str = "deadbeef00000000decafbad00000000";
 
     fn prec() -> PushRecord {
         PushRecord::new(
             DUMMY_UAID,
-            "deadbeef00000000decafbad00000000",
+            DUMMY_CHID,
             "https://example.com/update",
             "https://example.com/1",
             Crypto::generate_key().expect("Couldn't generate_key"),
@@ -261,7 +355,8 @@ mod test {
         assert!(db.get_record(DUMMY_UAID, &rec.channel_id)?.is_some());
         db.delete_all_records(DUMMY_UAID)?;
         assert!(db.get_record(DUMMY_UAID, &rec.channel_id)?.is_none());
-        assert!(db.get_record(DUMMY_UAID, &rec.channel_id)?.is_none());
+        assert!(db.get_meta("uaid")?.is_none());
+        assert!(db.get_delivery_record_by_chid(DUMMY_CHID).is_err());
         Ok(())
     }
 
@@ -276,6 +371,23 @@ mod test {
         db.set_meta("fruit", "banana")?;
         assert_eq!(db.get_meta("uaid")?, Some(DUMMY_UAID.to_owned()));
         assert_eq!(db.get_meta("fruit")?, Some("banana".to_owned()));
+        Ok(())
+    }
+
+    #[test]
+    fn delivery_record() -> Result<()> {
+        use super::Storage;
+        let db = PushDb::open_in_memory()?;
+        assert!(db.get_delivery_record_by_chid(DUMMY_CHID).is_err());
+        db.update_delivery_record(&DeliveryRecord {
+            channel_id: DUMMY_CHID.to_owned(),
+            service_name: "random_service".to_owned(),
+            ..Default::default()
+        })?;
+        let tester = db.get_delivery_record_by_chid(DUMMY_CHID)?;
+        assert_eq!(tester.channel_id, DUMMY_CHID);
+        let stester = db.get_delivery_record_by_service_name("random_service")?;
+        assert_eq!(tester.channel_id, stester.channel_id);
         Ok(())
     }
 }

@@ -42,12 +42,25 @@ impl PushManager {
         Ok(pm)
     }
 
-    // XXX: make these trait methods
-    // XXX: should be called subscribe?
     pub fn subscribe(&mut self, channel_id: &str, scope: &str) -> Result<(RegisterResponse, Key)> {
         //let key = self.config.vapid_key;
         let reg_token = self.config.registration_id.clone().unwrap();
         let subscription_key: Key;
+        // Check to see if the channel is already subscribed.
+        if let Ok(Some(uaid)) = self.store.get_meta("uaid") {
+            if let Ok(Some(info)) = self.store.get_record(&uaid, channel_id) {
+                return Ok((
+                    RegisterResponse {
+                        uaid: uaid,
+                        secret: self.store.get_meta("auth")?,
+                        channelid: channel_id.to_owned(),
+                        endpoint: info.endpoint,
+                        senderid: Some(self.config.sender_id.clone()),
+                    },
+                    Key::deserialize(info.key)?,
+                ));
+            }
+        }
         let info = self.conn.subscribe(channel_id)?;
         if &self.config.sender_id == "test" {
             subscription_key = Crypto::test_key(
@@ -181,19 +194,43 @@ mod test {
 
     // use crypto::{get_bytes, Key};
 
-    /*
+    use crate::storage::PushRecord;
+
     const DUMMY_CHID: &str = "deadbeef00000000decafbad00000000";
     const DUMMY_UAID: &str = "abad1dea00000000aabbccdd00000000";
     // Local test SENDER_ID
-    const SENDER_ID: &str = "308358850242";
+    // const SENDER_ID: &str = "308358850242";
     const SECRET: &str = "SuP3rS1kRet";
-    */
 
     #[test]
     fn basic() -> Result<()> {
         let _pm = PushManager::new(Default::default())?;
-        //pm.subscribe(DUMMY_CHID, "http://example.com/test-scope")?;
-        //pm.unsubscribe(Some(DUMMY_CHID))?;
+        Ok(())
+    }
+
+    #[test]
+    fn test_dup_subscribe() -> Result<()> {
+        let mut pm = PushManager::new(Default::default())?;
+        // preload some information
+        const ENDPOINT: &str = "https://example.com/update";
+        let mykey = Crypto::generate_key().expect("Could not generate key");
+        pm.store.set_meta("uaid", DUMMY_UAID)?;
+        pm.store.set_meta("auth", SECRET)?;
+        pm.store.put_record(&PushRecord::new(
+            DUMMY_UAID,
+            DUMMY_CHID,
+            ENDPOINT,
+            "https://example.com/1",
+            mykey.clone(),
+        ))?;
+
+        // Try to resubscribe the ChannelID.
+        let (sub_info, key) = pm.subscribe(DUMMY_CHID, "")?;
+        assert_eq!(sub_info.channelid, DUMMY_CHID);
+        assert_eq!(sub_info.uaid, DUMMY_UAID);
+        assert_eq!(sub_info.endpoint, ENDPOINT);
+        assert_eq!(key, mykey);
+
         Ok(())
     }
 }

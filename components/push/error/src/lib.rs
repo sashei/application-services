@@ -146,6 +146,9 @@ pub enum ErrorKind {
 
     #[fail(display = "Encryption Error: {}", _0)]
     EncryptionError(String),
+
+    #[fail(display = "Function {} not yet implemented", _0)]
+    NotImplemented(String),
 }
 
 // Note, be sure to duplicate errors in the Kotlin side
@@ -164,6 +167,7 @@ impl ErrorKind {
             ErrorKind::MissingRegistrationTokenError => 30,
             ErrorKind::TranscodingError(_) => 31,
             ErrorKind::EncryptionError(_) => 32,
+            ErrorKind::NotImplemented(_) => 33,
         };
         ffi_support::ErrorCode::new(code)
     }
