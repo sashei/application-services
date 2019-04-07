@@ -28,7 +28,7 @@ use sync15::{
     telemetry, ClientInfo, CollectionRequest, IncomingChangeset, OutgoingChangeset, Payload,
     ServerTimestamp, Store,
 };
-static LAST_SYNC_META_KEY: &'static str = "bookmarks_last_sync_time";
+pub static LAST_SYNC_META_KEY: &'static str = "bookmarks_last_sync_time";
 
 pub struct BookmarksStore<'a> {
     pub db: &'a PlacesDb,
@@ -718,12 +718,14 @@ impl<'a> dogear::Store<Error> for Merger<'a> {
                 false,
             )?
             .ok_or_else(|| ErrorKind::Corruption(Corruption::InvalidSyncedRoots))?;
+        builder.reparent_orphans_to(&dogear::UNFILED_GUID);
 
         let sql = format!(
             "SELECT guid, parentGuid, serverModified, kind, needsMerge, validity
              FROM moz_bookmarks_synced
              WHERE NOT isDeleted AND
-                   guid <> '{root_guid}'",
+                   guid <> '{root_guid}'
+             ORDER BY guid",
             root_guid = BookmarkRootGuid::Root.as_guid().as_ref()
         );
         let mut stmt = self.store.db.prepare(&sql)?;
