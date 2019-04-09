@@ -157,9 +157,9 @@ def gradle_module_task(libs_tasks, module_info, is_release):
     )
     for artifact_info in module_info['artifacts']:
         task.with_artifacts(artifact_info['artifact'])
-    if is_release and module_info['uploadSymbols']:
-        task.with_scopes("secrets:get:project/application-services/symbols-token")
-        task.with_script("./automation/upload_android_symbols.sh {}".format(module_info['path']))
+    # if is_release and module_info['uploadSymbols']:
+        # task.with_scopes("secrets:get:project/application-services/symbols-token")
+        # task.with_script("./automation/upload_android_symbols.sh {}".format(module_info['path']))
     return task.create()
 
 def build_gradle_modules_tasks(is_release):
