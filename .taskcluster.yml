@@ -118,9 +118,30 @@ tasks:
           $let:
             pull_request_number: ${event.pull_request.number}
             pull_request_url: ${event.pull_request.html_url}
+            #TODO: to remove
+            beetmover_worker_type: mobile-beetmover-dev
+            #TODO: to remove
+            beetmover_bucket: maven-staging
+            #TODO: to remove
+            beetmover_bucket_public_url: https://maven-default.stage.mozaws.net/
+            #TODO: to remove
+            release_task_definition:
+              payload:
+                env:
+                  BEETMOVER_WORKER_TYPE: ${beetmover_worker_type}
+                  BEETMOVER_BUCKET: ${beetmover_bucket}
+                  BEETMOVER_BUCKET_PUBLIC_URL: ${beetmover_bucket_public_url}
+                features:
+                  chainOfTrust: true
+              scopes:
+                # So that we can publish on Maven using beetmover
+                - project:mozilla:application-services:releng:beetmover:action:push-to-maven
+                - project:mozilla:application-services:releng:beetmover:bucket:${beetmover_bucket}
+                - queue:create-task:${tasks_priority}:scriptworker-prov-v1/${beetmover_worker_type}
           in:
             $mergeDeep:
               - {$eval: 'default_task_definition'}
+              - {$eval: 'release_task_definition'}
               - metadata:
                   name: 'Application Services - Decision task (Pull Request #${pull_request_number})'
                   description: 'Building and testing Application Services - triggered by [#${pull_request_number}](${pull_request_url})'
