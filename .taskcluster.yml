@@ -137,10 +137,10 @@ tasks:
               - {$eval: 'default_task_definition'}
               - {$eval: 'release_task_definition'}
               - payload:
-                env:
-                  BEETMOVER_WORKER_TYPE: ${beetmover_worker_type}
-                  BEETMOVER_BUCKET: ${beetmover_bucket}
-                  BEETMOVER_BUCKET_PUBLIC_URL: ${beetmover_bucket_public_url}
+                  env:
+                    BEETMOVER_WORKER_TYPE: ${beetmover_worker_type}
+                    BEETMOVER_BUCKET: ${beetmover_bucket}
+                    BEETMOVER_BUCKET_PUBLIC_URL: ${beetmover_bucket_public_url}
               - scopes:
                 # So that we can publish on Maven using beetmover
                 - project:mozilla:application-services:releng:beetmover:bucket:${beetmover_bucket}
