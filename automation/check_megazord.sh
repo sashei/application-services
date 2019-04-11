@@ -21,6 +21,7 @@ FORBIDDEN_SYMBOL="viaduct_detect_reqwest_backend"
 for i in "${!TARGET_ARCHS[@]}"; do
     NM="$ANDROID_NDK_TOOLCHAIN_DIR/${TARGET_ARCHS[$i]}-$ANDROID_NDK_API_VERSION/bin/${NM_BINS[$i]}"
     MEGAZORD_PATH="./target/${RUST_TRIPLES[i]}/release/lib$MEGAZORD_NAME.so"
+    ls "./target"
     echo "\nTesting if $MEGAZORD_PATH contains the legacy/test-only HTTP stack\n"
     # Returns error status on failure, which will cause us to exit because of set -e.
     ./testing/err-if-symbol.sh "$NM" "$MEGAZORD_PATH" "$FORBIDDEN_SYMBOL"
