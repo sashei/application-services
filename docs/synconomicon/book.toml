@@ -4,5 +4,5 @@ author = "Mozilla Application Services Team"
 description = "A deep dive into the internals of sync and storage."
 
 [build]
-build-dir = "book"
+build-dir = "../../website/static/synconomicon"
 create-missing = true

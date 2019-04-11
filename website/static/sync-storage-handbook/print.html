@@ -1,0 +1,249 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Sync and Storage Handbook</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="An overview of the Application Services sync and storage libraries.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="ch01-components.html"><strong aria-hidden="true">2.</strong> Components</a></li><li><ol class="section"><li><a href="ch01.1-db.html"><strong aria-hidden="true">2.1.</strong> The database</a></li><li><a href="ch01.2-store.html"><strong aria-hidden="true">2.2.</strong> The syncable store</a></li><li><a href="ch01.3-ffi.html"><strong aria-hidden="true">2.3.</strong> FFI</a></li></ol></li><li><a href="ch02-telemetry.html"><strong aria-hidden="true">3.</strong> Telemetry</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">Sync and Storage Handbook</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#welcome" id="welcome"><h1>Welcome!</h1></a>
+<p>The Application Services libraries provide cross-platform components for storing and syncing user data within the Firefox ecosystem. Firefox manages <em>lots</em> of data: a typical user profile houses over forty different stores, including your history, bookmarks, and saved logins.</p>
+<p>As we make Firefox available on more platforms—and ship products that aren't web browsers—it's become clear that each project wants to access existing Firefox data, and make its own data available to others. The goal of the sync and storage components is to expose a uniform, flexible, and high-level way to do this.</p>
+<a class="header" href="#what" id="what"><h2>What?</h2></a>
+<p><strong>High-level</strong> means your application thinks in terms of <em>what</em> it wants to do, not <em>how</em>. Adding a bookmark, storing a page visit, updating a saved password, and syncing history are all examples of the former. Meanwhile, the component takes care of the details: defining the database schema, handling migrations, optimizing queries, downloading and uploading Sync records, and resolving merge conflicts.</p>
+<p><strong>Uniform</strong> means one way to access data everywhere. The same building blocks are used for each component; once you know how one works, you can understand the others. They are also consistent across products and platforms, so you don't need to change three different codebases.</p>
+<p><strong>Flexible</strong> means it's easy for your application to add new fields and data types, and experiment with new ways to represent data.</p>
+<a class="header" href="#why" id="why"><h2>Why?</h2></a>
+<p>Historically, each product had to build its own storage and sync system. They often started with similar data models, but then evolved based on immediate product needs. Changes had to be backported to each platform, often across languages: Firefox Desktop was written in a mix of JavaScript and C++, Firefox for Android in Java, and Firefox for iOS in Swift.</p>
+<p>Beyond the language barrier, there was little commonality between the implementations. All platforms used <a href="https://sqlite.org/">SQLite</a> for storage, with a similarly-shaped schema, but the similarities ended there. Some concepts didn't translate well, if at all, and coordinating changes across platforms was hard. Syncing was often bolted on, and required lots of low-level integration work. This made for an inconsistent, brittle experience for developers and users.</p>
+<p>The new components build on our experience shipping sync and storage on three platforms. The cross-platform parts are written in <a href="https://www.rust-lang.org/">Rust</a>, with bindings for <a href="https://kotlinlang.org/">Kotlin</a> and <a href="https://swift.org/">Swift</a>.</p>
+<p>In the next section, we'll look at how a component works.</p>
+<a class="header" href="#components" id="components"><h1>Components</h1></a>
+<p>We currently provide two components.</p>
+<p><strong>Logins</strong> manage saved usernames and passwords. This component exposes APIs for creating and updating logins, and supports &quot;unlocking&quot; and &quot;locking&quot; a store by opening or closing its database connection. Internally, it tracks metadata like the use count, last use date, and last change date. This component is currently used in <a href="https://mozilla-lockbox.github.io/">Lockbox</a> and <a href="https://github.com/mozilla-mobile/firefox-ios/">Firefox for iOS</a>.</p>
+<p><strong>Places</strong> manages bookmarks and history. This component provides high-level APIs for common use cases, like recording history visits, autocompleting visited URLs, clearing and expiring history, and managing bookmarks. Places is based on the Firefox Desktop implementation, and uses a mostly backward-compatible storage schema. It can either be consumed directly, as in Firefox for iOS, or through a layer like <a href="https://mozac.org/">Mozilla Android Components</a>. It's used in the <a href="https://github.com/mozilla-mobile/reference-browser/">Android Reference Browser</a> and <a href="https://github.com/mozilla-mobile/fenix/">Fenix</a>.</p>
+<a class="header" href="#anatomy-of-a-component" id="anatomy-of-a-component"><h2>Anatomy of a Component</h2></a>
+<p>All components share a similar architecture.</p>
+<ul>
+<li>The <strong>database</strong> layer persists data to disk.</li>
+<li>The <strong>domain</strong> layer defines data types and the operations on them.</li>
+<li>The <strong>FFI layer</strong> is the glue between the application and storage.</li>
+<li>The <strong>binding layer</strong> exposes an idiomatic, platform-specific API for the application.</li>
+</ul>
+<p>We'll take a closer look at each of the layers in the following sections.</p>
+<a class="header" href="#the-database" id="the-database"><h1>The database</h1></a>
+<p>Our database of choice is SQLite. Logins, bookmarks, and history are relational data, and Places in particular makes heavy use of joins, indexes, constraints, and triggers. Each component defines a schema with tables for local and synced data. The sync tables also stage incoming and outgoing items, and help with conflict resolution. Finally, this layer manages SQLite connections, and provides conveniences for executing SQL statements.</p>
+<a class="header" href="#connection-management" id="connection-management"><h2>Connection management</h2></a>
+<p>A database can have many read-only connections, but only two read-write connections: a main writer that's exposed to the application, and an internal Sync connection. Each component provides a way to open a new reader, or get the existing writer.</p>
+<a class="header" href="#schema-migrations" id="schema-migrations"><h2>Schema migrations</h2></a>
+<p>Opening the first connection to an existing database runs migrations to bring the database up to date. The latest schema and version are always baked in to the component. For the logins component, you can find the schema in <code>components/logins/src/schema.rs</code>. For Places, take a look at <code>components/places/sql</code> and <code>components/places/src/db/schema.rs</code>.</p>
+<p>Opening a connection to a file that doesn't exist creates and initializes an empty database. Opening a database with a newer schema version is supported, but the version will be rolled back. As long as the schema changes are backward-compatible, this lets different release channels work with the same database.</p>
+<p>Read-write connections can also set up temporary in-memory tables and triggers. These are used for internal operations, like history expiration, frecency recalculation, and merging synced bookmarks in Places. Read-only connections don't have these.</p>
+<a class="header" href="#wal" id="wal"><h2>WAL</h2></a>
+<p>All connections use SQLite's <a href="https://sqlite.org/wal.html">WAL</a> mode. This is faster than the default rollback journal, and allows concurrent reads and writes. However, this does mean that read-only connections might not immediately see changes from read-write or Sync connections.</p>
+<p>Reading occasionally stale data is perfect for performance-sensitive use cases, like fetching URL bar autocomplete matches. For cases where consistency is more important, like the history, bookmarks, and saved logins list views, it's better to always read using the read-write connection. That way, reads after writes always return the just-written data.</p>
+<p>WAL mode doesn't allow multiple concurrent writes. This means that, for example, adding a bookmark or navigating to a page during a sync may cause one of the writes to fail. The Places component handles this, and prioritizes writes from the main connection over the Sync connection.</p>
+<a class="header" href="#maintenance" id="maintenance"><h2>Maintenance</h2></a>
+<p>Maintenance runs a tune up on the database, rebuilding indexes and checking for schema coherence. Currently, only the Places component exposes a maintenance operation, for vacuuming the database.</p>
+<a class="header" href="#encryption" id="encryption"><h2>Encryption</h2></a>
+<p>Components can use SQLCipher to encrypt data on disk. This is currently enabled by default for logins, and disabled for Places.</p>
+<a class="header" href="#syncable-store" id="syncable-store"><h1>Syncable store</h1></a>
+<p>The syncable store, part of the domain layer, is the heart of each component. It exposes high-level operations for each data type, like recording a history visit, adding a bookmark, changing a password, or syncing with the server. The store is written in safe, idiomatic Rust, and shared across platforms, so you only need to implement operations once.</p>
+<p>The store lives in the <code>src</code> subdirectory of each component.</p>
+<a class="header" href="#syncing" id="syncing"><h1>Syncing</h1></a>
+<p>Syncing is tightly integrated into storage. This isn't an accident—we've found that pushing concerns like change tracking and conflict resolution down into the store is far less error-prone than managing them separately.</p>
+<a class="header" href="#merging" id="merging"><h2>Merging</h2></a>
+<p>Conflict resolution is an important part of syncing. Each store implements a strategy for reconciling local changes with changes from other devices.</p>
+<p>Logins uses three-way merging to resolve sync conflicts, where changing different fields of the same record on both sides carries both changes forward. Places uses a two-way <a href="https://mozilla.github.io/dogear/">tree merge</a> for bookmarks, and takes the complete record based on its timestamp.</p>
+<a class="header" href="#ffi" id="ffi"><h1>FFI</h1></a>
+<p>All components expose a C ABI-compatible <a href="https://doc.rust-lang.org/nomicon/ffi.html">foreign function interface</a> for platform-specific bindings. These functions are unsafe by necessity, as the FFI supports only a limited set of types. They also take care of managing calls from multiple threads, handing out safe references to Rust structures, and serializing and deserializing arguments using Protobufs.</p>
+<p>The <a href="https://docs.rs/ffi-support/0.1.3/ffi_support/">ffi-support</a> crate extracts some of the common patterns we've adopted for our FFIs.</p>
+<a class="header" href="#telemetry" id="telemetry"><h1>Telemetry</h1></a>
+<p>Most Application Services consumers already collect and submit telemetry. For this reason, the sync and storage components record telemetry, then pass it to the application, instead of submitting it themselves.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

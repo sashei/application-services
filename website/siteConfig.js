@@ -56,6 +56,7 @@ const siteConfig = {
   /* On page navigation for the current documentation page */
   onPageNav: 'separate',
   wrapPagesHTML: true,
+  separateCss: ['static/sync-storage-handbook', 'static/synconomicon'],
 };
 
 module.exports = siteConfig;

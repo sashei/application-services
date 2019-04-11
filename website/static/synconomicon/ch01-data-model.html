@@ -1,0 +1,222 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Sync data model - The Synconomicon</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A deep dive into the internals of sync and storage.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="index.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="ch01-data-model.html" class="active"><strong aria-hidden="true">2.</strong> Sync data model</a></li><li><ol class="section"><li><a href="ch01.1-logins.html"><strong aria-hidden="true">2.1.</strong> Logins</a></li></ol></li><li><a href="ch02-life-of-a-sync.html"><strong aria-hidden="true">3.</strong> Life of a sync</a></li><li><a href="ch03-builds.html"><strong aria-hidden="true">4.</strong> Builds</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">The Synconomicon</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#sync-data-model" id="sync-data-model"><h1>Sync data model</h1></a>
+<p>All synced data types fit into one of three broad categories: trees, logs, and documents.</p>
+<a class="header" href="#trees" id="trees"><h2>Trees</h2></a>
+<p>Bookmarks are an example of a tree. Trees are hierarchical, and the most complex type to sync. Records in tree collections are interdependent, where parents contain pointers to their children, and children back to their parents.</p>
+<p>Tree-structured data presents a problem for syncing, because some changes may span multiple records. These changes must be uploaded in lockstep, and applied in order. Missing or incomplete records lead to problems like orphans and parent-child disagreements. Clients must also be prepared to handle and fix inconsistent structure on the server.</p>
+<a class="header" href="#logs" id="logs"><h2>Logs</h2></a>
+<p>History is an example of a log. Logs are append-only, independent, and can be synced in any order. Since all entries are distinct, there are no conflicts: two visits to the same page on two different devices are still two distinct visits. These records are independent, and can be synced in any order.</p>
+<p>Log data is the easiest to sync, but the problem is <em>volume</em>. We currently limit history to the last 20 visits per page, cap initial syncs to 5,000 pages in the last 30 days, and expire records that aren't updated on the server after 60 days. These limitations are for efficiency as much as for historical reasons. Clients don't need to process thousands of entries on each sync, and the server avoids bloated indexes for large collections. Unfortunately, this is also a form of data loss, as the server never has the complete history.</p>
+<a class="header" href="#documents" id="documents"><h2>Documents</h2></a>
+<p>Logins, addresses, and credit cards are examples of semistructured document data. Like logs, documents are independent, and can be synced in any order relative to each other. However, they <em>can</em> conflict if two clients change the same record.</p>
+<p>Engines that implement three-way merging support per-field conflict resolution, since they store the value that was last uploaded to the server. However, engines that only support two-way merging resolve conflicts at the record level, based on which side is newer.</p>
+<p>Documents <em>can</em> refer to other records. For example, credit cards have an &quot;address hint&quot; that points to a potential address record for the card. However, these identifiers aren't stable, and can't be enforced by the server or other clients. Each client must expect and handle stale and nonexistent references.</p>
+<p>There's a <a href="https://github.com/mozilla/application-services/pull/658">proposal to support generic syncing</a> for document types. We expect most new data types to fall into this category.</p>
+<a class="header" href="#change-tracking" id="change-tracking"><h2>Change tracking</h2></a>
+<p>Each client must track changes to synced data, so that it knows what to upload during the next sync. How this is done depends on the client, the data type, and the underlying store.</p>
+<a class="header" href="#server-record-format" id="server-record-format"><h2>Server record format</h2></a>
+<p>On the server, each piece of synced data is stored as a Basic Storage Object, or BSO. A BSO is a JSON envelope that contains an encrypted blob, which is itself a JSON string when decrypted. BSOs are grouped together in buckets called collections, where each BSO belonging to the same collection has the same structure.</p>
+<p>BSOs are typically referenced as <code>collection/id</code>. For example, <code>meta/global</code> means &quot;the BSO <code>global</code> in the <code>meta</code> collection.&quot; Most BSOs have a random, globally unique identifier, like <code>bookmarks/fvcXYVP3pY2w</code>. Others, like <code>meta/global</code> and <code>crypto/keys</code>, have well-known names.</p>
+<p>BSOs are encrypted on the client side before upload, and decrypted during download. This means the server can't see the contents of any Sync records, except for their collection names, IDs, and last modified timestamps.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="ch01.1-logins.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="ch01.1-logins.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

@@ -4,5 +4,5 @@ author = "Mozilla Application Services Team"
 description = "An overview of the Application Services sync and storage libraries."
 
 [build]
-build-dir = "book"
+build-dir = "../../website/static/sync-storage-handbook"
 create-missing = true
