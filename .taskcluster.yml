@@ -11,9 +11,8 @@ policy:
 tasks:
   $let:
     decision_task_id: {$eval: as_slugid("decision_task")}
-    decision_worker_type: mobile-1-decision
-    # TODO: to fork this per level and ramp-up mobile-3-* counterpart too
-    build_worker_type: mobile-1-b-appservices
+    decision_worker_type: application-services-r
+    build_worker_type: application-services-r
     scheduler_id: taskcluster-github
     tasks_priority: highest
     expires_in: {$fromNow: '1 year'}
