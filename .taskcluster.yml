@@ -74,6 +74,8 @@ tasks:
         metadata:
           owner: &task_owner ${user}@users.noreply.github.com
           source: &task_source ${repository}/raw/${head_rev}/.taskcluster.yml
+        extra:
+          tasks_for: ${tasks_for}
         payload:
           artifacts:
             public/task-graph.json:
